@@ -9,7 +9,7 @@ def leven(str_one, str_two):
     elif str_two_len == 0:
         return str_one_len
     else:
-        matrix = [[0 for x in range(str_one_len + 1)] for y in range(str_one_len + 1)]
+        matrix = [[0 for x in range(str_two_len + 1)] for y in range(str_one_len + 1)]
         for i in range(0, str_one_len + 1):
             for t in range(0, str_two_len + 1):
                 if i == 0:

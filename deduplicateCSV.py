@@ -1,6 +1,8 @@
 import csv
 import json
 
+LAST_NAME_COL = 2
+
 def leven(str_one, str_two):
     str_one_len = len(str_one)
     str_two_len = len(str_two)
@@ -36,23 +38,42 @@ def findTypos(currName, lastNames):
             return (True, key)
     return (False, "False") 
 
+def dictManipulator(key, currName, row, dupNames, uniqueNames, allNames):
+    pass
+
 def getLastNames(csvReader):
-    lastNames = {}
+    uniqueNames = {}
     dupNames = {}
+    allNames = {}
     for row in csvReader:
-        currName = row[2]
-        If currName in lastNames:
+        currName = row[LAST_NAME_COL]
+        (found, key) = findTypos(currName, allNames)
+        if found:
+#            dictManipulator(key, currName, row, dupNames, uniqueNames, allNames)
+            """
+            if currName == key:
+                dupNames[key].append(row)
+                duprNames[currNam
+            else:
+                dupNames[currName] = [row]
+                dupNames[key] = [allNames[key]]
+                uniqueNames.pop(key)
+                allNames[currName] = row
+
             dupNames[currName] = row
-            lastNames.pop(currName)
- 	else:
-	    lastNames[currName] = row
+            uniqueNames.pop(currName)
+            """
+        else:
+            allNames[currName] = row
+            uniqueNames[currName] = row
+    return (uniqueNames, dupNames)
 
 
-def test():
+def csvReader():
     csvFileString = input("Enter name of CSV file")
     with open(csvFileString) as csvFile:
         csvReader = csv.DictReader(csvFile, delimiter = ',')
-        lastNames = getLastNames(csvReader)
+        (lastNames, dupNames) = getLastNames(csvReader)
         
                      
 

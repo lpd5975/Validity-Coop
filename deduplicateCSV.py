@@ -39,7 +39,20 @@ def findTypos(currName, lastNames):
     return (False, "False") 
 
 def dictManipulator(key, currName, row, dupNames, uniqueNames, allNames):
-    pass
+    if currName != key:
+        dupNames[currName] = [row]
+        if key not in dupNames:
+            dupNames[key] = allNames[key]
+        if key in uniqueNames:
+            uniqueNames.pop(key)
+        allNames[currName] = row
+    else:
+        if currName in dupNames:
+            dupNames[currName].append(row)
+        else:
+            dupNames[currName] = [row]
+        if currName in uniqueNames:
+            uniqueNames.pop(currName)
 
 def getLastNames(csvReader):
     uniqueNames = {}
@@ -49,36 +62,26 @@ def getLastNames(csvReader):
         currName = row[LAST_NAME_COL]
         (found, key) = findTypos(currName, allNames)
         if found:
-#            dictManipulator(key, currName, row, dupNames, uniqueNames, allNames)
-            """
-            if currName == key:
-                dupNames[key].append(row)
-                duprNames[currNam
-            else:
-                dupNames[currName] = [row]
-                dupNames[key] = [allNames[key]]
-                uniqueNames.pop(key)
-                allNames[currName] = row
-
-            dupNames[currName] = row
-            uniqueNames.pop(currName)
-            """
+            dictManipulator(key, currName, row, dupNames, uniqueNames, allNames)
         else:
             allNames[currName] = row
             uniqueNames[currName] = row
     return (uniqueNames, dupNames)
 
-
-def csvReader():
+def readCSV():
     csvFileString = input("Enter name of CSV file")
     with open(csvFileString) as csvFile:
-        csvReader = csv.DictReader(csvFile, delimiter = ',')
-        (lastNames, dupNames) = getLastNames(csvReader)
-        
-                     
+        csvReader = csv.reader(csvFile, delimiter = ',')
+        (uniqueNames, dupNames) = getLastNames(csvReader)
+        print("\nUnique Names")
+        for x in uniqueNames:
+            print(x)
+        print("\nDupliacte Names")
+        for x in dupNames:
+            print(x)
 
 def main():
-    print(leven("sun", "sunny"))
+    readCSV()    
 
 if __name__ == "__main__":
     main()

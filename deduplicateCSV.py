@@ -45,7 +45,10 @@ def findTypos(currName, lastNames):
 
 def dictManipulator(key, currName, row, dupNames, uniqueNames, allNames):
     if currName != key:
-        dupNames[currName] = [row]
+        if currName not in dupNames:
+            dupNames[currName] = [row]
+        else:
+            dupNames[currName].append(row)
         if key not in dupNames:
             dupNames[key] = [allNames[key]]
         if key in uniqueNames:
@@ -67,23 +70,18 @@ def getLastNames(csvReader):
     for row in csvReader:
         currName = row[LAST_NAME_COL]
         (found, key) = findTypos(currName, allNames)
+        #print("\n",found, currName, key)
         if found:
             dictManipulator(key, currName, row, dupNames, uniqueNames, allNames)
         else:
             allNames[currName] = row
             uniqueNames[currName] = row
+        #print()
     return (uniqueNames, dupNames)
 
-"""
-LAST_NAME_COL = 2
-FIRST_NAME_COL = 1
-STATE_COL = 10
-PHONE_COL = 11
-"""
-
 def isMatch(entry, dupList, dupNamesBool, entry_num):
+    answer = dupNamesBool[entry_num]
     entry_num = entry_num + 1
-    answer = False
     for entry2 in dupList:
         count = 0
         if probablyTypo(entry[FIRST_NAME_COL], entry2[FIRST_NAME_COL]):
@@ -92,7 +90,7 @@ def isMatch(entry, dupList, dupNamesBool, entry_num):
             count += 1
         if probablyTypo(entry[PHONE_COL], entry2[PHONE_COL]):
             count += 1
-        if count >= 3:
+        if count >= 2:
             dupNamesBool[entry_num] = True
             answer = True
         entry_num += 1
@@ -115,6 +113,8 @@ def validateDuplicate(dupNames, uniqueNames):
     for i in range(0, len(dupNamesBool)):
         if not dupNamesBool[i]:
             dupNamesList.pop(counter)
+        else:
+            counter = counter + 1
     uniqueNamesList = []
     for key in uniqueNames:
         uniqueNamesList.append(uniqueNames[key])
@@ -126,13 +126,16 @@ def readCSV():
         csvReader = csv.reader(csvFile, delimiter = ',')
         (uniqueNames, dupNames) = getLastNames(csvReader)
         (uniqueNamesList, dupNamesList) = validateDuplicate(dupNames, uniqueNames)
-
-        print("\nUnique Names")
-        for x in uniqueNamesList:
-            print(x)
         print("\nDuplicate Names")
         for x in dupNamesList:
             print(x)
+"""
+        print()
+        for x in dupNames:
+            print(dupNames[x])
+"""
+
+
 
 def main():
     readCSV()    

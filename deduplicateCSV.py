@@ -1,7 +1,12 @@
+from itertools import combinations
 import csv
 import json
 
 LAST_NAME_COL = 2
+FIRST_NAME_COL = 1
+STATE_COL = 10
+PHONE_COL = 11
+
 
 def leven(str_one, str_two):
     str_one_len = len(str_one)
@@ -42,7 +47,7 @@ def dictManipulator(key, currName, row, dupNames, uniqueNames, allNames):
     if currName != key:
         dupNames[currName] = [row]
         if key not in dupNames:
-            dupNames[key] = allNames[key]
+            dupNames[key] = [allNames[key]]
         if key in uniqueNames:
             uniqueNames.pop(key)
         allNames[currName] = row
@@ -51,6 +56,7 @@ def dictManipulator(key, currName, row, dupNames, uniqueNames, allNames):
             dupNames[currName].append(row)
         else:
             dupNames[currName] = [row]
+            dupNames[currName].append(uniqueNames[currName])
         if currName in uniqueNames:
             uniqueNames.pop(currName)
 
@@ -68,16 +74,64 @@ def getLastNames(csvReader):
             uniqueNames[currName] = row
     return (uniqueNames, dupNames)
 
+"""
+LAST_NAME_COL = 2
+FIRST_NAME_COL = 1
+STATE_COL = 10
+PHONE_COL = 11
+"""
+
+def isMatch(entry, dupList, dupNamesBool, entry_num):
+    entry_num = entry_num + 1
+    answer = False
+    for entry2 in dupList:
+        count = 0
+        if probablyTypo(entry[FIRST_NAME_COL], entry2[FIRST_NAME_COL]):
+            count += 1
+        if entry[STATE_COL] == entry2[STATE_COL]:
+            count += 1
+        if probablyTypo(entry[PHONE_COL], entry2[PHONE_COL]):
+            count += 1
+        if count >= 3:
+            dupNamesBool[entry_num] = True
+            answer = True
+        entry_num += 1
+    return answer
+        
+
+def validateDuplicate(dupNames, uniqueNames):
+    dupNamesList = []
+    dupNamesBool = []
+    entry_num = 0
+    for key in dupNames:
+        for val in dupNames[key]:
+            dupNamesList.append(val)
+            dupNamesBool.append(False)
+    for entry in dupNamesList:
+        if isMatch(entry, dupNamesList[entry_num+1:], dupNamesBool, entry_num):
+            dupNamesBool[entry_num] = True
+        entry_num += 1
+    counter = 0
+    for i in range(0, len(dupNamesBool)):
+        if not dupNamesBool[i]:
+            dupNamesList.pop(counter)
+    uniqueNamesList = []
+    for key in uniqueNames:
+        uniqueNamesList.append(uniqueNames[key])
+    return (uniqueNamesList, dupNamesList)        
+
 def readCSV():
     csvFileString = input("Enter name of CSV file")
     with open(csvFileString) as csvFile:
         csvReader = csv.reader(csvFile, delimiter = ',')
         (uniqueNames, dupNames) = getLastNames(csvReader)
+        (uniqueNamesList, dupNamesList) = validateDuplicate(dupNames, uniqueNames)
+
         print("\nUnique Names")
-        for x in uniqueNames:
+        for x in uniqueNamesList:
             print(x)
-        print("\nDupliacte Names")
-        for x in dupNames:
+        print("\nDuplicate Names")
+        for x in dupNamesList:
             print(x)
 
 def main():

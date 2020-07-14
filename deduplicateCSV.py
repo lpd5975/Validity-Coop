@@ -7,6 +7,8 @@ FIRST_NAME_COL = 1
 STATE_COL = 10
 PHONE_COL = 11
 
+NUM_OF_COLS = 12
+
 
 def leven(str_one, str_two):
     str_one_len = len(str_one)
@@ -67,6 +69,7 @@ def getLastNames(csvReader):
     uniqueNames = {}
     dupNames = {}
     allNames = {}
+    missingInfo= []
     for row in csvReader:
         currName = row[LAST_NAME_COL]
         (found, key) = findTypos(currName, allNames)
@@ -79,21 +82,61 @@ def getLastNames(csvReader):
         #print()
     return (uniqueNames, dupNames)
 
+def checkEveryCell(entry, entry2):
+    if entry[LAST_NAME_COL] == "Konzel" and entry2[LAST_NAME_COL] == "Konzel":
+        print(entry)
+        print(entry2)
+    matches = 0
+    empties = 0
+    for i in range(0, NUM_OF_COLS):
+        if len(entry2[i]) == 0 or len(entry[i]) == 0:
+            empties += 1
+        else:
+            if probablyTypo(entry[i], entry2[i]):
+                matches += 1
+    if entry[LAST_NAME_COL] == "Konzel" and entry2[LAST_NAME_COL] == "Konzel":
+        print(NUM_OF_COLS, matches, empties)
+    if NUM_OF_COLS - empties == matches:
+        return True
+    else:
+        return False
+    
+     
+
 def isMatch(entry, dupList, dupNamesBool, entry_num):
     answer = dupNamesBool[entry_num]
     entry_num = entry_num + 1
     for entry2 in dupList:
+        #print()
+        #print(entry)
         count = 0
-        if probablyTypo(entry[FIRST_NAME_COL], entry2[FIRST_NAME_COL]):
-            count += 1
-        if entry[STATE_COL] == entry2[STATE_COL]:
-            count += 1
-        if probablyTypo(entry[PHONE_COL], entry2[PHONE_COL]):
-            count += 1
+        missing_data = 0
+        if len(entry2[FIRST_NAME_COL]) == 0 or len(entry[FIRST_NAME_COL]) == 0:
+            missing_data += 1
+        else:
+            if probablyTypo(entry[FIRST_NAME_COL], entry2[FIRST_NAME_COL]):
+                count += 1
+       # print(entry2[STATE_COL])
+        if len(entry2[STATE_COL]) == 0 or len(entry[STATE_COL]) == 0:
+            missing_data += 1
+        else:
+            if entry[STATE_COL] == entry2[STATE_COL]:
+                count += 1
+        #print(entry2[PHONE_COL])
+        if len(entry2[PHONE_COL]) == 0 or len(entry[PHONE_COL]) == 0:
+            missing_data += 1
+        else:
+            if probablyTypo(entry[PHONE_COL], entry2[PHONE_COL]):
+                count += 1
+        if missing_data >= 2:
+            if checkEveryCell(entry, entry2):
+                count = 3
         if count >= 2:
             dupNamesBool[entry_num] = True
             answer = True
         entry_num += 1
+      #  print(entry2)
+      #  print()
     return answer
         
 
@@ -129,13 +172,14 @@ def readCSV():
         print("\nDuplicate Names")
         for x in dupNamesList:
             print(x)
-"""
-        print()
-        for x in dupNames:
-            print(dupNames[x])
-"""
-
-
+def test():
+    csvFileString = input("Enter name of CSV file")
+    with open(csvFileString) as csvFile:
+        csvReader = csv.reader(csvFile, delimiter = ',')
+        for row in csvReader:
+            for i in row:
+                if len(i) == 0:
+                    print("found empty cell")
 
 def main():
     readCSV()    

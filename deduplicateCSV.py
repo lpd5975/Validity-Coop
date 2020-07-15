@@ -243,7 +243,20 @@ def validateDuplicate(dupNames):
         else:
             counter = counter + 1
     return dupNamesList       
-                    
+
+      
+"""
+Prints combined dictionary in a readable format.
+combinedDict (dict): Contains both the unique and duplciate entries.
+return: VOID
+"""              
+def printNames(combinedDict):
+    for key in combinedDict:
+        print(key)
+        for val in combinedDict[key]:
+            print("\t",combinedDict[key][val])
+        print()
+
 
 """
 Takes two dictionaries, combines them into one and outputs a JSON Object.
@@ -256,6 +269,7 @@ return (string): A string representing a JSON Object.
 def dictsToJSON(unique, duplicate):
     combinedDict = { "Unique Entries": unique,
                      "Duplicate Entries": duplicate}
+    printNames(combinedDict)
     return json.dumps(combinedDict)
 
 
